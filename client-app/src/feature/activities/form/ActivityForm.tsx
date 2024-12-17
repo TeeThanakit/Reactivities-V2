@@ -1,19 +1,13 @@
-import { Button, Form, Segment } from "semantic-ui-react";
-import { Activity } from "../../../app/models/activity";
+import { observer } from "mobx-react-lite";
 import { ChangeEvent, useState } from "react";
-interface Props {
-  activity: Activity | undefined;
-  closeForm: () => void;
-  createOrEdit: (activity: Activity) => void;
-  submitting: boolean;
-}
-export default function ActivityForm({
-  activity: selctedActivity,
-  closeForm,
-  createOrEdit,
-  submitting,
-}: Props) {
-  const initailState = selctedActivity ?? {
+import { Button, Form, Segment } from "semantic-ui-react";
+import { useStore } from "../../../app/store/store";
+
+export default observer(function ActivityForm() {
+  const { activityStore } = useStore();
+  const { selectedActivity, closeForm, createActivity, updateActivity, loading } = activityStore;
+
+  const initialState = selectedActivity ?? {
     id: "",
     title: "",
     category: "",
@@ -22,14 +16,18 @@ export default function ActivityForm({
     city: "",
     venue: "",
   };
-  const [activity, setActivity] = useState(initailState);
+
+  const [activity, setActivity] = useState(initialState);
+
   function handleSubmit() {
-    createOrEdit(activity);
+    activity.id ? updateActivity(activity) : createActivity(activity);
   }
+
   function handleInputChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = event.target;
     setActivity({ ...activity, [name]: value });
   }
+
   return (
     <Segment clearing>
       <Form onSubmit={handleSubmit} autoComplete="off">
@@ -47,7 +45,7 @@ export default function ActivityForm({
           onChange={handleInputChange}
         />
         <Form.Input
-          type="Date"
+          type="date"
           placeholder="Date"
           value={activity.date}
           name="date"
@@ -55,9 +53,9 @@ export default function ActivityForm({
         />
         <Form.Input placeholder="City" value={activity.city} name="city" onChange={handleInputChange} />
         <Form.Input placeholder="Venue" value={activity.venue} name="venue" onChange={handleInputChange} />
-        <Button loading={submitting} floated="right" positive type="submit" content="Submit" />
-        <Button floated="right" type="button" content="Cancel" onClick={closeForm} />
+        <Button loading={loading} floated="right" positive type="submit" content="Submit" />
+        <Button onClick={closeForm} floated="right" type="button" content="Cancel" />
       </Form>
     </Segment>
   );
-}
+});

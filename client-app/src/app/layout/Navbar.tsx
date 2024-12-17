@@ -1,18 +1,18 @@
 import { Button, Container, Menu } from "semantic-ui-react";
-interface Props {
-  openForm: () => void;
-}
-export default function Navbar({ openForm }: Props) {
+import { useStore } from "../store/store";
+
+export default function NavBar() {
+  const { activityStore } = useStore();
   return (
     <Menu inverted fixed="top">
       <Container>
         <Menu.Item header>
-          <img src="/assets/logo.png" alt="logo" style={{ marginRight: "10px" }} />
+          <img src="/assets/logo.png" alt="logo" style={{ marginRight: 10 }} />
           Reactivities
         </Menu.Item>
         <Menu.Item name="Activities" />
         <Menu.Item>
-          <Button positive content="Create Activity" onClick={openForm} />
+          <Button onClick={() => activityStore.openForm()} positive content="Create Activity" />
         </Menu.Item>
       </Container>
     </Menu>
