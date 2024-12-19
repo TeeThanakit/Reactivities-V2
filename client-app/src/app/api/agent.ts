@@ -12,7 +12,7 @@ axios.defaults.baseURL = "http://localhost:5000/api";
 // get a delay when refresh the browser
 axios.interceptors.response.use(async (response) => {
   try {
-    await sleep(1);
+    // await sleep(1);
     return response;
   } catch (error) {
     console.log(error);
