@@ -1,20 +1,18 @@
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useState } from "react";
-import { Button, Form, Segment } from "semantic-ui-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Activity } from "../../../app/models/activity";
+import { Button, Form, Segment } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { v4 as uuid } from "uuid";
 import { useStore } from "../../../app/store/store";
 
 export default observer(function ActivityForm() {
   const { activityStore } = useStore();
-  const { selectedActivity, createActivity, updateActivity, loading, loadActivity, loadingInitial } =
-    activityStore;
-
+  const { createActivity, updateActivity, loading, loadActivity, loadingInitial } = activityStore;
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activity, setActivity] = useState<Activity>({
+
+  const [activity, setActivity] = useState({
     id: "",
     title: "",
     category: "",
@@ -35,7 +33,6 @@ export default observer(function ActivityForm() {
     } else {
       updateActivity(activity).then(() => navigate(`/activities/${activity.id}`));
     }
-    activity.id ? updateActivity(activity) : createActivity(activity);
   }
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -43,7 +40,8 @@ export default observer(function ActivityForm() {
     setActivity({ ...activity, [name]: value });
   }
 
-  if (loadingInitial) return <LoadingComponent content="loading activity...." />;
+  if (loadingInitial) return <LoadingComponent content="Loading activity..." />;
+
   return (
     <Segment clearing>
       <Form onSubmit={handleSubmit} autoComplete="off">
