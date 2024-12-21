@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import 'react-toastify/dist/ReactToastify.css';
 import "semantic-ui-css/semantic.min.css";
 import "./app/layout/style.css";
 import { store, StoreContext } from "./app/store/store.ts";
