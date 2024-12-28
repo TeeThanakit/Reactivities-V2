@@ -1,19 +1,28 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { Activity } from "../models/activity";
 import { toast } from "react-toastify";
+import { Activity, ActivityFormValues } from "../models/activity";
+import { User, UserFormValues } from "../models/user";
 import { router } from "../router/Routes";
 import { store } from "../store/store";
-import { User, UserFromValues } from "../models/user";
 
+// get a delay when refresh the browser
 const sleep = (delay: number) => {
-  return new Promise((reslove) => {
-    setTimeout(reslove, delay);
+  return new Promise((resolve) => {
+    setTimeout(resolve, delay);
   });
 };
 
 axios.defaults.baseURL = "http://localhost:5000/api";
 
-// get a delay when refresh the browser
+// The <T> notation in TypeScript is used to denote a generic type.
+const responseBody = <T>(response: AxiosResponse<T>) => response.data;
+
+axios.interceptors.request.use((config) => {
+  const token = store.commonStore.token;
+  if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
 axios.interceptors.response.use(
   async (response) => {
     // await sleep(1);
@@ -39,10 +48,10 @@ axios.interceptors.response.use(
         }
         break;
       case 401:
-        toast.error("Unauthorised");
+        toast.error("unauthorised");
         break;
       case 403:
-        toast.error("Forbidden");
+        toast.error("forbidden");
         break;
       case 404:
         router.navigate("/not-found");
@@ -56,16 +65,7 @@ axios.interceptors.response.use(
   }
 );
 
-// The <T> notation in TypeScript is used to denote a generic type.
-const responseBody = <T>(response: AxiosResponse<T>) => response.data;
-
-axios.interceptors.request.use((config) => {
-  const token = store.commonStore.token;
-  if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-const request = {
+const requests = {
   get: <T>(url: string) => axios.get<T>(url).then(responseBody),
   post: <T>(url: string, body: {}) => axios.post<T>(url, body).then(responseBody),
   put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(responseBody),
@@ -74,18 +74,19 @@ const request = {
 
 const Activities = {
   // baseURL + what every inside the ()
-  list: () => request.get<Activity[]>("/activities"),
-  details: (id: string) => request.get<Activity>(`/activities/${id}`),
+  list: () => requests.get<Activity[]>(`/activities`),
+  details: (id: string) => requests.get<Activity>(`/activities/${id}`),
   //   add activity as a body request
-  create: (activity: Activity) => request.post<void>("activities", activity),
-  update: (activity: Activity) => axios.put<void>(`/activities/${activity.id}`, activity),
-  delete: (id: string) => axios.delete<void>(`/activities/${id}`),
+  create: (activity: ActivityFormValues) => requests.post<void>(`/activities`, activity),
+  update: (activity: ActivityFormValues) => requests.put<void>(`/activities/${activity.id}`, activity),
+  delete: (id: string) => requests.del<void>(`/activities/${id}`),
+  attend: (id: string) => requests.post<void>(`/activities/${id}/attend`, {}),
 };
 
 const Account = {
-  current: () => request.get<User>("/account"),
-  login: (user: UserFromValues) => request.post<User>("/account/login", user),
-  register: (user: UserFromValues) => request.post<User>("/account/register", user),
+  current: () => requests.get<User>("account"),
+  login: (user: UserFormValues) => requests.post<User>("/account/login", user),
+  register: (user: UserFormValues) => requests.post<User>("/account/register", user),
 };
 
 const agent = {
