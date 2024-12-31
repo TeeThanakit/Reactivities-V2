@@ -33,4 +33,6 @@ Write-Host "Finished!" -ForegroundColor Green
 
 dotnet ef migrations add AddCancelledProperty -p .\Persistence\ -s .\API\
 
+dotnet ef migrations remove -p .\Persistence\ -s .\API\
+
  dotnet ef database drop -p .\Persistence\ -s .\API\
